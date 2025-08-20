@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Leave - Leave Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            padding: 2rem;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Leave Management System
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    Welcome, <span th:text="${user?.fullName}">User</span>
+                </span>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="form-card">
+                    <div class="text-center mb-4">
+                        <h2><i class="fas fa-calendar-plus me-2"></i>Request Leave</h2>
+                        <p class="text-muted">Fill out the form below to submit your leave request</p>
+                    </div>
+                    
+                    <form th:action="@{/leave/request}" th:object="${leaveRequest}" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startDate" class="form-label">Start Date *</label>
+                                <input type="date" class="form-control" id="startDate" th:field="*{startDate}" required>
+                                <div th:if="${#fields.hasErrors('startDate')}" class="text-danger small mt-1">
+                                    <span th:errors="*{startDate}"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="endDate" class="form-label">End Date *</label>
+                                <input type="date" class="form-control" id="endDate" th:field="*{endDate}" required>
+                                <div th:if="${#fields.hasErrors('endDate')}" class="text-danger small mt-1">
+                                    <span th:errors="*{endDate}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="leaveType" class="form-label">Leave Type *</label>
+                            <select class="form-select" id="leaveType" th:field="*{leaveType}" required>
+                                <option value="">Select leave type</option>
+                                <option th:each="type : ${leaveTypes}" 
+                                        th:value="${type}" 
+                                        th:text="${type.displayName}">Leave Type</option>
+                            </select>
+                            <div th:if="${#fields.hasErrors('leaveType')}" class="text-danger small mt-1">
+                                <span th:errors="*{leaveType}"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="reason" class="form-label">Reason</label>
+                            <textarea class="form-control" id="reason" th:field="*{reason}" 
+                                      rows="4" placeholder="Please provide a reason for your leave request..."></textarea>
+                            <div th:if="${#fields.hasErrors('reason')}" class="text-danger small mt-1">
+                                <span th:errors="*{reason}"></span>
+                            </div>
+                            <div class="form-text">Maximum 500 characters</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/dashboard}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Date validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            startDate.min = today;
+            endDate.min = today;
+            
+            // Update end date minimum when start date changes
+            startDate.addEventListener('change', function() {
+                endDate.min = this.value;
+                if (endDate.value && endDate.value < this.value) {
+                    endDate.value = this.value;
+                }
+            });
+            
+            // Update start date maximum when end date changes
+            endDate.addEventListener('change', function() {
+                startDate.max = this.value;
+            });
+        });
+    </script>
+</body>
+</html> 
